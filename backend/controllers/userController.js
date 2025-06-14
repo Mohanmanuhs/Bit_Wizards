@@ -5,12 +5,12 @@ const Club = require("../models/Club");
 // @route   GET /api/users/dashboard
 const getUserDashboard = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id)
+    const user = await User.findById(req.body.id)
       .select("-password")
       .populate("clubId", "name description logoUrl");
       
     if (!user) return res.status(404).json({ message: "User not found" });
-    
+
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -26,7 +26,7 @@ const updateUserProfile = async (req, res) => {
       profilePic: req.body.profilePic,
     };
 
-    const updatedUser = await User.findByIdAndUpdate(req.user.id, updates, {
+    const updatedUser = await User.findByIdAndUpdate(req.body.id, updates, {
       new: true,
       runValidators: true,
     }).select("-password");
@@ -57,7 +57,7 @@ const getUserById = async (req, res) => {
 // @route   GET /api/users
 const getAllUsers = async (req, res) => {
   try {
-    if (req.user.role !== "super_admin") {
+    if (req.body.role !== "super_admin") {
       return res.status(403).json({ message: "Not authorized" });
     }
 
@@ -72,7 +72,13 @@ const getAllUsers = async (req, res) => {
 // @route   DELETE /api/users/:id
 const deleteUser = async (req, res) => {
   try {
-    if (req.user.role !== "super_admin") {
+    
+    const user =  req.body.email;
+
+
+
+
+    if (req.body.role !== "super_admin") {
       return res.status(403).json({ message: "Not authorized" });
     }
 
@@ -82,6 +88,8 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
 
 
 module.exports = {
