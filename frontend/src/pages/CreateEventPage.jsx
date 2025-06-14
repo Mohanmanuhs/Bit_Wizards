@@ -5,6 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const apiUrl = import.meta.env.VITE_API_URL;
+const api = axios.create({
+    baseURL: apiUrl,
+    withCredentials: true
+  });
 
 const allowedTags = [
   "technical", "cultural", "sports", "social", "educational",
@@ -33,7 +37,7 @@ const CreateEventPage = () => {
         ...newEvent,
       };
 
-      await axios.post(`${apiUrl}/api/events`, eventData, {
+      await api.post(`${apiUrl}/api/events`, eventData, {
         headers: {
           Authorization: `Bearer ${user.token}`, // make sure token is available
           "Content-Type": "application/json",

@@ -1,14 +1,15 @@
 const Event = require("../models/Event");
 const Club = require("../models/Club");
+const mongoose = require("mongoose");
 // @desc    Create event
 // @route   POST /api/events
 exports.createEvent = async (req, res) => {
   try {
     
-    const userId = req.user._id;
+    const userId = req.user.id;
     console.log(userId);
     // Find the club where userId matches
-    const club = await Club.findOne({ userId });
+    const club = await Club.findOne({ userId: new mongoose.Types.ObjectId(userId) });
 
     if (!club) {
       return res.status(400).json({ message: "Club not found for the user." });
