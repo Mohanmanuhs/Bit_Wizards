@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import heroImage from '../assets/images/logo.png'; // Replace with your hero image
+import heroImage from '../assets/images/logo2.jpg'; // Replace with your hero image
 
 export const HomePage = () => {
   const { user } = useAuth();
@@ -8,7 +8,7 @@ export const HomePage = () => {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <div className="relative bg-gray-900">
+      <div className="relative bg-gradient-to-b from-gray-900 to-amber-900">
         <div className="absolute inset-0">
           <img
             className="w-full h-full object-cover opacity-50"

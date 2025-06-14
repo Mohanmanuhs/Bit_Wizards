@@ -1,5 +1,6 @@
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaEnvelope } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import logo from '../../assets/images/logo2.jpg';
 
 export const Footer = () => {
   return (
@@ -11,7 +12,7 @@ export const Footer = () => {
           <div className="md:col-span-2">
             <h3 className="text-xl font-bold mb-4 flex items-center">
               <span className="bg-indigo-600 p-2 rounded-lg mr-2">
-                <img src="/logo-icon.png" alt="CampusPulse" className="h-6 w-6" />
+                <img src={logo} alt="CampusPulse" className="h-6 w-6" />
               </span>
               CampusPulse
             </h3>

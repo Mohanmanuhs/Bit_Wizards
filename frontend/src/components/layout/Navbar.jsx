@@ -16,7 +16,7 @@ import {
   FaBell
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import logo from '../../assets/images/logo.png';
+import logo from '../../assets/images/logo2.jpg';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
