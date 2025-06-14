@@ -5,6 +5,7 @@ const clubSchema = new mongoose.Schema({
   description: String,
   logoUrl: String,
   createdAt: { type: Date, default: Date.now },
+  isAproved : {type : Boolean, default : false}
 });
 
 module.exports = mongoose.model("Club", clubSchema);
