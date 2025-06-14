@@ -143,14 +143,6 @@ export const Navbar = () => {
 
             {user ? (
               <>
-                {['club_admin', 'super_admin'].includes(user.role) && (
-                  <Link
-                    to="/create-event"
-                    className={`flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-white ${colors.button} transition-colors`}
-                  >
-                    <FaPlus className="mr-1.5" /> Create
-                  </Link>
-                )}
 
                 {/* Dropdown */}
                 <div className="relative">
@@ -259,15 +251,6 @@ export const Navbar = () => {
             </NavLink>
           ))}
 
-          {user && ['club_admin', 'super_admin'].includes(user.role) && (
-            <NavLink
-              to="/create-event"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`block pl-3 pr-4 py-2 text-base font-medium ${colors.text} hover:${colors.dropdownHover}`}
-            >
-              <div className="flex items-center"><FaPlus className="mr-3" /> Create Event</div>
-            </NavLink>
-          )}
 
           {user ? (
             <>

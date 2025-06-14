@@ -30,13 +30,13 @@ const EventsPage = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const params = {};
         if (filter !== 'all') params.type = filter;
         if (clubFilter) params.clubId = clubFilter;
-        
+
         const { data } = await axios.get(`${apiUrl}/api/events`, { params });
-        
+
         // Ensure data is always an array
         if (!Array.isArray(data)) {
           console.error('Expected array but received:', data);
@@ -52,7 +52,7 @@ const EventsPage = () => {
         setLoading(false);
       }
     };
-    
+
     fetchEvents();
   }, [filter, clubFilter]);
 
@@ -64,7 +64,7 @@ const EventsPage = () => {
         createdBy: user.clubId || user._id,
         tags: newEvent.tags.split(',').map(tag => tag.trim()),
       };
-      
+
       const { data } = await axios.post(`${apiUrl}/api/events`, eventData);
       setEvents([data, ...events]);
       setShowCreateModal(false);
@@ -85,7 +85,7 @@ const EventsPage = () => {
   // Handle delete event
   const handleDeleteEvent = async (id) => {
     if (!window.confirm('Are you sure you want to delete this event?')) return;
-    
+
     try {
       await axios.delete(`${apiUrl}/api/events/${id}`);
       setEvents(events.filter(event => event._id !== id));
@@ -97,26 +97,51 @@ const EventsPage = () => {
 
   // Render media based on event type
   const renderMedia = (event) => {
+    // Helper function to transform YouTube URLs to embed format
+    const getEmbedUrl = (url) => {
+      if (!url) return null;
+
+      // Handle YouTube URLs
+      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+        return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+      }
+
+      // Handle Vimeo URLs
+      if (url.includes('vimeo.com')) {
+        const videoId = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/)?.[1];
+        return videoId ? `https://player.vimeo.com/video/${videoId}` : url;
+      }
+
+      return url;
+    };
+
     switch (event.type) {
       case 'podcast':
         return (
           <div className="relative pt-4">
             <audio controls className="w-full">
               <source src={event.mediaUrl} type="audio/mpeg" />
+              <source src={event.mediaUrl} type="audio/ogg" />
               Your browser does not support the audio element.
             </audio>
           </div>
         );
       case 'video':
-        return (
+        const embedUrl = getEmbedUrl(event.mediaUrl);
+        return embedUrl ? (
           <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-            <iframe 
-              src={event.mediaUrl} 
+            <iframe
+              src={embedUrl}
               className="absolute top-0 left-0 w-full h-full rounded-lg"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               title={event.title}
             />
+          </div>
+        ) : (
+          <div className="w-full h-64 bg-gray-200 flex items-center justify-center rounded-lg">
+            <span className="text-gray-500">Invalid video URL</span>
           </div>
         );
       default:
@@ -127,6 +152,7 @@ const EventsPage = () => {
             className="w-full h-64 object-cover rounded-lg"
             onError={(e) => {
               e.target.src = `https://source.unsplash.com/random/600x400/?${event.type},${event.tags?.[0] || 'event'}`;
+              e.target.onerror = null; // Prevent infinite loop
             }}
           />
         );
@@ -143,34 +169,34 @@ const EventsPage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">Create New Event</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Title*</label>
                 <input
                   type="text"
                   value={newEvent.title}
-                  onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
+                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
                   className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                   required
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Description</label>
                 <textarea
                   value={newEvent.description}
-                  onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
+                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
                   className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                   rows="3"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Type*</label>
                 <select
                   value={newEvent.type}
-                  onChange={(e) => setNewEvent({...newEvent, type: e.target.value})}
+                  onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value })}
                   className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                   required
                 >
@@ -180,7 +206,7 @@ const EventsPage = () => {
                   <option value="video">Video</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   Tags (comma separated)
@@ -188,12 +214,12 @@ const EventsPage = () => {
                 <input
                   type="text"
                   value={newEvent.tags}
-                  onChange={(e) => setNewEvent({...newEvent, tags: e.target.value})}
+                  onChange={(e) => setNewEvent({ ...newEvent, tags: e.target.value })}
                   className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                   placeholder="technical, workshop, seminar"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   Media URL
@@ -201,23 +227,23 @@ const EventsPage = () => {
                 <input
                   type="url"
                   value={newEvent.mediaUrl}
-                  onChange={(e) => setNewEvent({...newEvent, mediaUrl: e.target.value})}
+                  onChange={(e) => setNewEvent({ ...newEvent, mediaUrl: e.target.value })}
                   className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                   placeholder="https://example.com/media.mp4"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">Event Date</label>
                 <input
                   type="datetime-local"
                   value={newEvent.eventDate}
-                  onChange={(e) => setNewEvent({...newEvent, eventDate: e.target.value})}
+                  onChange={(e) => setNewEvent({ ...newEvent, eventDate: e.target.value })}
                   className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                 />
               </div>
             </div>
-            
+
             <div className="mt-6 flex justify-end space-x-3">
               <button
                 onClick={() => setShowCreateModal(false)}
@@ -246,7 +272,7 @@ const EventsPage = () => {
               Stay updated with the latest happenings
             </p>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
             {user?.role === 'club_admin' && (
               <button
@@ -256,7 +282,7 @@ const EventsPage = () => {
                 + Add New Event
               </button>
             )}
-            
+
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
@@ -268,7 +294,7 @@ const EventsPage = () => {
               <option value="podcast">Podcasts</option>
               <option value="video">Videos</option>
             </select>
-            
+
             {user?.role === 'admin' && (
               <input
                 type="text"
@@ -301,8 +327,8 @@ const EventsPage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {events.map((event) => (
-              <div 
-                key={event._id} 
+              <div
+                key={event._id}
                 className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 relative flex flex-col"
               >
                 {/* Media Section */}
@@ -339,8 +365,8 @@ const EventsPage = () => {
                   {event.tags?.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-2">
                       {event.tags.map((tag) => (
-                        <span 
-                          key={tag} 
+                        <span
+                          key={tag}
                           className="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full capitalize"
                         >
                           {tag}
@@ -353,11 +379,23 @@ const EventsPage = () => {
                   {event.createdBy && (
                     <div className="mt-4 flex items-center">
                       <div className="flex-shrink-0">
-                        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                          <span className="text-indigo-600 text-sm font-medium">
-                            {event.createdBy.name?.charAt(0) || 'C'}
-                          </span>
-                        </div>
+                        {event.createdBy.logoUrl ? (
+                          <img
+                            src={event.createdBy.logoUrl}
+                            alt={event.createdBy.name}
+                            className="w-8 h-8 rounded-full object-cover"
+                            onError={(e) => {
+                              e.target.src = 'https://via.placeholder.com/40';
+                              e.target.onerror = null;
+                            }}
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                            <span className="text-indigo-600 text-sm font-medium">
+                              {event.createdBy.name?.charAt(0) || 'C'}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <div className="ml-3">
                         <p className="text-sm font-medium text-gray-700">

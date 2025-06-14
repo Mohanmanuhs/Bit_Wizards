@@ -4,43 +4,50 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 
+// ✅ Ensure this is defined only once and outside the component
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const ClubRequestsPage = () => {
   const { user } = useAuth();
-  const [clubs, setClubs] = useState([]); // Initialize as empty array
+  const [clubs, setClubs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("notVerified");
 
-  // Fetch clubs from backend
   useEffect(() => {
     const fetchClubs = async () => {
       try {
-        const { data } = await axios.get("/api/clubs");
-        // Ensure data is an array before setting state
+        const { data } = await axios.get(`${apiUrl}/api/clubs`, {
+          withCredentials: true, // ✅ Important for cookies and JWT
+        });
+
         if (Array.isArray(data)) {
           setClubs(data);
         } else {
           console.error("Expected array but received:", data);
-          setClubs([]); // Set to empty array if response isn't an array
+          setClubs([]);
           toast.error("Invalid clubs data format");
         }
       } catch (err) {
         console.error("Error fetching clubs:", err);
         toast.error(err.response?.data?.message || "Failed to fetch clubs");
-        setClubs([]); // Ensure clubs is always an array
+        setClubs([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchClubs();
-  }, []);
+  }, []); // ✅ Only run once on mount
 
-  // Handle club verification
   const handleVerifyClub = async (clubId) => {
     try {
-      const { data } = await axios.put(`/api/clubs/${clubId}`, { isAproved: true });
-      setClubs(prevClubs => 
-        prevClubs.map(club => club._id === clubId ? data : club)
+      const { data } = await axios.put(
+        `${apiUrl}/api/clubs/${clubId}`,
+        { isAproved: true },
+        { withCredentials: true }
+      );
+      setClubs((prev) =>
+        prev.map((club) => (club._id === clubId ? data : club))
       );
       toast.success("Club verified successfully");
     } catch (err) {
@@ -48,25 +55,21 @@ const ClubRequestsPage = () => {
     }
   };
 
-  // Handle club rejection
   const handleRejectClub = async (clubId) => {
     try {
-      await axios.delete(`/api/clubs/${clubId}`);
-      setClubs(prevClubs => 
-        prevClubs.filter(club => club._id !== clubId)
-      );
+      await axios.delete(`${apiUrl}/api/clubs/${clubId}`, {
+        withCredentials: true,
+      });
+      setClubs((prev) => prev.filter((club) => club._id !== clubId));
       toast.success("Club rejected and deleted");
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to reject club");
     }
   };
 
-  // Filter clubs based on verification status
-  const filteredClubs = Array.isArray(clubs) ? clubs.filter((club) => {
-    if (filter === "verified") return club.isAproved;
-    if (filter === "notVerified") return !club.isAproved;
-    return true;
-  }) : [];
+  const filteredClubs = clubs.filter((club) =>
+    filter === "verified" ? club.isAproved : !club.isAproved
+  );
 
   if (loading) {
     return (
@@ -112,16 +115,11 @@ const ClubRequestsPage = () => {
                 className="grid grid-cols-3 items-center px-8 py-5 border-t border-gray-200 hover:bg-gray-50 transition duration-200"
               >
                 <div className="flex items-center">
-                  {club.logoUrl && (
-                    <img 
-                      src={club.logoUrl} 
-                      alt={club.name}
-                      className="w-10 h-10 rounded-full mr-3 object-cover"
-                      onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/40";
-                      }}
-                    />
-                  )}
+                  <img
+                    src={club.logoUrl || "https://via.placeholder.com/40"}
+                    alt={club.name}
+                    className="w-10 h-10 rounded-full mr-3 object-cover"
+                  />
                   <div>
                     <div className="text-gray-800 font-medium">{club.name}</div>
                     <div className="text-gray-500 text-sm line-clamp-1">{club.description}</div>
