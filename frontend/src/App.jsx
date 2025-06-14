@@ -22,6 +22,7 @@ import { HomePage }
   // RegisterClubPage,
   // NotFoundPage
   from './pages/HomePage';
+import ClubListingPage from './pages/ClubListingPage';
 //import { ProtectedRoute, AdminRoute } from './components/layout';
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
                   <ProfilePage />
                 </ProtectedRoute>
               } />
+               <Route path="/clubs" element={<ClubListingPage />} />
               {/* <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/events" element={<EventsPage />} />
@@ -64,6 +66,8 @@ function App() {
                   <CreateEventPage />
                 </AdminRoute>
               } />
+
+              
               
               <Route path="*" element={<NotFoundPage />} /> */}
             </Routes>

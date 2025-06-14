@@ -45,7 +45,6 @@ const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
       .select("-password")
-      .populate("clubId", "name");
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
