@@ -275,7 +275,7 @@ const EventsPage = () => {
                   )}
 
                   {/* Action Buttons */}
-                  {(user?.role === 'club_admin' || user?._id === event.createdBy?._id) && (
+                  {/* {(user?.role === 'club_admin' || user?._id === event.createdBy?._id) && (
                     <div className="mt-4 flex justify-end space-x-2">
                       <button
                         onClick={() => navigate(`/events/edit/${event._id}`)}
@@ -290,7 +290,7 @@ const EventsPage = () => {
                         Delete
                       </button>
                     </div>
-                  )}
+                  )} */}
                 </div>
               </div>
             ))}

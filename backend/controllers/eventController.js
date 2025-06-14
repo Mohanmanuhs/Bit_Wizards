@@ -1,10 +1,26 @@
 const Event = require("../models/Event");
-
+const Club = require("../models/Club");
 // @desc    Create event
 // @route   POST /api/events
 exports.createEvent = async (req, res) => {
   try {
-    const event = await Event.create(req.body);
+    console.log(req);
+    const userId = req.user._id;
+    console.log(userId);
+    // Find the club where userId matches
+    const club = await Club.findOne({ userId });
+
+    if (!club) {
+      return res.status(400).json({ message: "Club not found for the user." });
+    }
+    console.log(club)
+    const eventData = {
+      ...req.body,
+      createdBy: club._id,
+      createdAt: new Date(), // Optional, Mongoose will auto-set if omitted
+    };
+    const event = await Event.create(eventData);
+    
     res.status(201).json(event);
   } catch (err) {
     res.status(400).json({ message: err.message });

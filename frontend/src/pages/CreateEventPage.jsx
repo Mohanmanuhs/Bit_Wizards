@@ -6,6 +6,11 @@ import { toast } from 'react-toastify';
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
+const allowedTags = [
+  "technical", "cultural", "sports", "social", "educational",
+  "music", "talk", "competition", "workshop", "seminar", "general"
+];
+
 const CreateEventPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -13,7 +18,7 @@ const CreateEventPage = () => {
     title: '',
     description: '',
     type: 'event',
-    tags: '',
+    tags: [], // tags should be an array
     mediaUrl: '',
     eventDate: '',
   });
@@ -22,15 +27,19 @@ const CreateEventPage = () => {
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       const eventData = {
         ...newEvent,
-        createdBy: user.clubId || user._id,
-        tags: newEvent.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
       };
 
-      await axios.post(`${apiUrl}/api/events`, eventData);
+      await axios.post(`${apiUrl}/api/events`, eventData, {
+        headers: {
+          Authorization: `Bearer ${user.token}`, // make sure token is available
+          "Content-Type": "application/json",
+        },
+      });
+
       toast.success('Event created successfully!');
       navigate('/events');
     } catch (err) {
@@ -93,9 +102,7 @@ const CreateEventPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Event Date
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Event Date</label>
                 <input
                   type="datetime-local"
                   value={newEvent.eventDate}
@@ -106,22 +113,27 @@ const CreateEventPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Tags (comma separated)
-              </label>
-              <input
-                type="text"
+              <label className="block text-sm font-medium text-gray-700">Tags (select multiple)</label>
+              <select
+                multiple
                 value={newEvent.tags}
-                onChange={(e) => setNewEvent({ ...newEvent, tags: e.target.value })}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                placeholder="technical, workshop, seminar"
-              />
+                onChange={(e) => {
+                  const selected = Array.from(e.target.selectedOptions, option => option.value);
+                  setNewEvent({ ...newEvent, tags: selected });
+                }}
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2 h-40"
+              >
+                {allowedTags.map(tag => (
+                  <option key={tag} value={tag}>
+                    {tag}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">Hold Ctrl (Windows) or Command (Mac) to select multiple tags.</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Media URL
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Media URL</label>
               <input
                 type="url"
                 value={newEvent.mediaUrl}
