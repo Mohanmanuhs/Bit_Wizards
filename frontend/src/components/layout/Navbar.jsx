@@ -43,7 +43,6 @@ export const Navbar = () => {
 
   const handleLogout = () => {
     logout();
-    toast.success('Logged out successfully');
     navigate('/');
     setMobileMenuOpen(false);
     setDropdownOpen(false);
