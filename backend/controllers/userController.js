@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const Club = require("../models/Club");
+const jwt = require("jsonwebtoken");
+
 
 // @desc    Get current user's dashboard
 // @route   GET /api/users/dashboard
@@ -70,20 +72,29 @@ const getAllUsers = async (req, res) => {
 
 // @desc    Delete a user
 // @route   DELETE /api/users/:id
+
 const deleteUser = async (req, res) => {
   try {
-    
-    const user =  req.body.email;
+    // 1. Extract token from cookie
+    const token = req.cookies.token;
 
+    if (!token) {
+      return res.status(401).json({ message: "No token provided" });
+    }
 
+    // 2. Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-
-    if (req.body.role !== "super_admin") {
+    // 3. Find user using ID from token
+    const adminUser = await User.findById(decoded.id);
+    if (!adminUser || adminUser.role !== "super_admin") {
       return res.status(403).json({ message: "Not authorized" });
     }
 
+    // 4. Delete user by ID (provided in route param)
     await User.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "User deleted" });
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
