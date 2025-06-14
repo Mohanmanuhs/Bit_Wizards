@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -14,15 +14,6 @@ const EventsPage = () => {
   const [clubFilter, setClubFilter] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newEvent, setNewEvent] = useState({
-    title: '',
-    description: '',
-    type: 'event',
-    tags: [],
-    mediaUrl: '',
-    eventDate: '',
-  });
 
   // Fetch events from API with proper error handling
   useEffect(() => {
@@ -55,32 +46,6 @@ const EventsPage = () => {
 
     fetchEvents();
   }, [filter, clubFilter]);
-
-  // Handle create event
-  const handleCreateEvent = async () => {
-    try {
-      const eventData = {
-        ...newEvent,
-        createdBy: user.clubId || user._id,
-        tags: newEvent.tags.split(',').map(tag => tag.trim()),
-      };
-
-      const { data } = await axios.post(`${apiUrl}/api/events`, eventData);
-      setEvents([data, ...events]);
-      setShowCreateModal(false);
-      setNewEvent({
-        title: '',
-        description: '',
-        type: 'event',
-        tags: [],
-        mediaUrl: '',
-        eventDate: '',
-      });
-      toast.success('Event created successfully!');
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create event');
-    }
-  };
 
   // Handle delete event
   const handleDeleteEvent = async (id) => {
@@ -127,7 +92,7 @@ const EventsPage = () => {
             </audio>
           </div>
         );
-      case 'video':
+      case 'event':
         const embedUrl = getEmbedUrl(event.mediaUrl);
         return embedUrl ? (
           <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
@@ -164,105 +129,6 @@ const EventsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      {/* Create Event Modal */}
-      {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">Create New Event</h2>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Title*</label>
-                <input
-                  type="text"
-                  value={newEvent.title}
-                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea
-                  value={newEvent.description}
-                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                  rows="3"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Type*</label>
-                <select
-                  value={newEvent.type}
-                  onChange={(e) => setNewEvent({ ...newEvent, type: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                  required
-                >
-                  <option value="announcement">Announcement</option>
-                  <option value="event">Event</option>
-                  <option value="podcast">Podcast</option>
-                  <option value="video">Video</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Tags (comma separated)
-                </label>
-                <input
-                  type="text"
-                  value={newEvent.tags}
-                  onChange={(e) => setNewEvent({ ...newEvent, tags: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                  placeholder="technical, workshop, seminar"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Media URL
-                </label>
-                <input
-                  type="url"
-                  value={newEvent.mediaUrl}
-                  onChange={(e) => setNewEvent({ ...newEvent, mediaUrl: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                  placeholder="https://example.com/media.mp4"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Event Date</label>
-                <input
-                  type="datetime-local"
-                  value={newEvent.eventDate}
-                  onChange={(e) => setNewEvent({ ...newEvent, eventDate: e.target.value })}
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end space-x-3">
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateEvent}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
-                disabled={!newEvent.title || !newEvent.type}
-              >
-                Create Event
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="max-w-7xl mx-auto">
         {/* Header and Filters */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -275,12 +141,12 @@ const EventsPage = () => {
 
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
             {user?.role === 'club_admin' && (
-              <button
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors whitespace-nowrap"
-                onClick={() => setShowCreateModal(true)}
+              <Link
+                to="/events/create"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors whitespace-nowrap text-center"
               >
                 + Add New Event
-              </button>
+              </Link>
             )}
 
             <select
@@ -316,12 +182,12 @@ const EventsPage = () => {
           <div className="text-center py-20 bg-white rounded-lg shadow">
             <p className="text-gray-500">No events found matching your criteria</p>
             {user?.role === 'club_admin' && (
-              <button
-                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-                onClick={() => setShowCreateModal(true)}
+              <Link
+                to="/events/create"
+                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 inline-block"
               >
                 Create Your First Event
-              </button>
+              </Link>
             )}
           </div>
         ) : (

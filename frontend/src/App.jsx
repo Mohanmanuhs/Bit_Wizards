@@ -9,6 +9,7 @@ import  RegisterPage  from './pages/RegisterPage';
 import  EventsPage  from './pages/EventsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import  ClubRequestsPage  from './pages/ClubRequestsPage';
+import CreateEventPage from './pages/CreateEventPage';
 import { HomePage }
   // LoginPage,
   // SignupPage,
@@ -35,6 +36,7 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/events" element={<EventsPage />} />
               <Route path="/admin/clubs" element={<ClubRequestsPage />} />
+              <Route path="/events/create" element={<CreateEventPage />} />
               <Route path="/" element={
                   <HomePage />
               } />
