@@ -11,7 +11,7 @@ const getUserDashboard = async (req, res) => {
       .select("-password")
       .populate("clubId", "name description logoUrl");
       
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) return res.status(404).json({ message: "User not found!" });
 
     res.status(200).json(user);
   } catch (err) {
