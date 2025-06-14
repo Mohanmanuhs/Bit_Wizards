@@ -51,7 +51,13 @@ const loginUser = async (req, res) => {
         if (!isMatch) return res.status(401).json({ message: 'Invalid credentials' });
 
         const token = generateToken(user);
-        res.status(200).json({ user, token });
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // send over HTTPS in production
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+        res.status(200) .json({ user, token });
 
     } catch (err) {
         console.error(err);

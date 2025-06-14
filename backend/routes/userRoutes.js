@@ -5,7 +5,7 @@ const { protect } = require("../middleware/authMiddleware");
 
 
 
-router.get("/dashboard", userController.getUserDashboard);
+//router.get("/dashboard",protect, userController.getUserDashboard);
 router.put("/update", userController.updateUserProfile);
 
 router.get("/:id", userController.getUserById);
