@@ -6,10 +6,10 @@ const { protect } = require("../middleware/authMiddleware");
 
 
 //router.get("/dashboard",protect, userController.getUserDashboard);
-router.put("/update", userController.updateUserProfile);
+router.put("/update", protect,userController.updateUserProfile);
 
-router.get("/:id", userController.getUserById);
-router.get("/", userController.getAllUsers);
-router.delete("/:id", userController.deleteUser);
+router.get("/:id",protect, userController.getUserById);
+router.get("/", protect,userController.getAllUsers);
+router.delete("/:id",protect, userController.deleteUser);
 
 module.exports = router;
