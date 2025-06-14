@@ -6,8 +6,9 @@ import { Footer } from './components/layout/Footer';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import  LoginPage from './pages/LoginPage';
 import  RegisterPage  from './pages/RegisterPage';
+import  EventsPage  from './pages/EventsPage';
 import { ProfilePage } from './pages/ProfilePage';
-
+import  ClubRequestsPage  from './pages/ClubRequestsPage';
 import { HomePage }
   // LoginPage,
   // SignupPage,
@@ -32,6 +33,8 @@ function App() {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/events" element={<EventsPage />} />
+              <Route path="/admin/clubs" element={<ClubRequestsPage />} />
               <Route path="/" element={
                   <HomePage />
               } />

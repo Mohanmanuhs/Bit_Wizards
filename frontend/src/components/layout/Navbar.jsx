@@ -12,7 +12,8 @@ import {
   FaBars,
   FaTimes,
   FaMoon,
-  FaSun
+  FaSun,
+  FaBell
 } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import logo from '../../assets/images/logo.png';
@@ -130,6 +131,16 @@ export const Navbar = () => {
               {darkMode ? <FaSun className="w-5 h-5" /> : <FaMoon className="w-5 h-5" />}
             </button>
 
+            {user?.role === 'super_admin' && (
+              <Link
+                to="/admin/clubs"
+                className={`p-2 rounded-full ${colors.text} hover:${colors.hoverText} relative`}
+                title="Manage Clubs"
+              >
+                <FaBell className="w-5 h-5" />
+              </Link>
+            )}
+
             {user ? (
               <>
                 {['club_admin', 'super_admin'].includes(user.role) && (
@@ -216,6 +227,16 @@ export const Navbar = () => {
           >
             {darkMode ? <><FaSun className="mr-3 h-5 w-5" /> Light Mode</> : <><FaMoon className="mr-3 h-5 w-5" /> Dark Mode</>}
           </button>
+
+          {user?.role === 'super_admin' && (
+            <NavLink
+              to="/admin/clubs"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`block pl-3 pr-4 py-2 text-base font-medium ${colors.text} hover:${colors.dropdownHover}`}
+            >
+              <div className="flex items-center"><FaBell className="mr-3" /> Manage Clubs</div>
+            </NavLink>
+          )}
 
           {[
             { to: '/', label: 'Home', icon: <FaHome /> },
