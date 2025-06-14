@@ -10,6 +10,7 @@ import  EventsPage  from './pages/EventsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import  ClubRequestsPage  from './pages/ClubRequestsPage';
 import CreateEventPage from './pages/CreateEventPage';
+import { ToastContainer } from 'react-toastify';
 import { HomePage }
   // LoginPage,
   // SignupPage,
@@ -76,6 +77,7 @@ function App() {
           </main>
           <Footer />
         </div>
+        <ToastContainer />
     </AuthProvider>
   );
 }

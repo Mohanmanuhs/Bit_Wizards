@@ -36,9 +36,9 @@ const RegisterClubForm = () => {
     try {
       const response = await api.post('/api/clubs', formData);
       
-      toast.success('Club created successfully!', {
+      toast.success('Wait for admin to approve your club ones the club is accepted it will refect in website!', {
         position: "top-right",
-        autoClose: 3000,
+        autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
