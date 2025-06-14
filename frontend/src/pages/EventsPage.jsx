@@ -62,27 +62,74 @@ const EventsPage = () => {
 
   // Render media based on event type
   const renderMedia = (event) => {
-    // Helper function to transform YouTube URLs to embed format
-    const getEmbedUrl = (url) => {
-      if (!url) return null;
+  // Helper function to transform YouTube URLs to embed format
+  const getEmbedUrl = (url) => {
+    if (!url) return null;
 
-      // Handle YouTube URLs
-      if (url.includes('youtube.com') || url.includes('youtu.be')) {
-        const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
-        return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+    // Handle YouTube URLs
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+    }
+
+    // Handle Vimeo URLs
+    if (url.includes('vimeo.com')) {
+      const videoId = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/)?.[1];
+      return videoId ? `https://player.vimeo.com/video/${videoId}` : url;
+    }
+
+    return url;
+  };
+
+  // Default image URL based on event type
+  const defaultImageUrl = `https://source.unsplash.com/random/600x400/?${event.type},${event.tags?.[0] || 'event'}`;
+
+  switch (event.type) {
+    case 'announcement':
+      // For announcements, always show an image
+      return (
+        <img
+          src={event.mediaUrl || defaultImageUrl}
+          alt={event.title}
+          className="w-full h-64 object-cover rounded-lg"
+          onError={(e) => {
+            e.target.src = defaultImageUrl;
+            e.target.onerror = null;
+          }}
+        />
+      );
+
+    case 'event':
+      // For events, try to show video if URL is provided, otherwise show image
+      const eventEmbedUrl = getEmbedUrl(event.mediaUrl);
+      if (eventEmbedUrl) {
+        return (
+          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+            <iframe
+              src={eventEmbedUrl}
+              className="absolute top-0 left-0 w-full h-full rounded-lg"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              title={event.title}
+            />
+          </div>
+        );
       }
+      return (
+        <img
+          src={event.mediaUrl || defaultImageUrl}
+          alt={event.title}
+          className="w-full h-64 object-cover rounded-lg"
+          onError={(e) => {
+            e.target.src = defaultImageUrl;
+            e.target.onerror = null;
+          }}
+        />
+      );
 
-      // Handle Vimeo URLs
-      if (url.includes('vimeo.com')) {
-        const videoId = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/)?.[1];
-        return videoId ? `https://player.vimeo.com/video/${videoId}` : url;
-      }
-
-      return url;
-    };
-
-    switch (event.type) {
-      case 'podcast':
+    case 'podcast':
+      // For podcasts, show audio player if URL is provided, otherwise show image
+      if (event.mediaUrl) {
         return (
           <div className="relative pt-4">
             <audio controls className="w-full">
@@ -92,37 +139,55 @@ const EventsPage = () => {
             </audio>
           </div>
         );
-      case 'event':
-        const embedUrl = getEmbedUrl(event.mediaUrl);
-        return embedUrl ? (
-          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-            <iframe
-              src={embedUrl}
-              className="absolute top-0 left-0 w-full h-full rounded-lg"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              title={event.title}
-            />
-          </div>
-        ) : (
-          <div className="w-full h-64 bg-gray-200 flex items-center justify-center rounded-lg">
-            <span className="text-gray-500">Invalid video URL</span>
-          </div>
-        );
-      default:
-        return (
-          <img
-            src={event.mediaUrl || `https://source.unsplash.com/random/600x400/?${event.type},${event.tags?.[0] || 'event'}`}
-            alt={event.title}
-            className="w-full h-64 object-cover rounded-lg"
-            onError={(e) => {
-              e.target.src = `https://source.unsplash.com/random/600x400/?${event.type},${event.tags?.[0] || 'event'}`;
-              e.target.onerror = null; // Prevent infinite loop
-            }}
+      }
+      return (
+        <img
+          src={defaultImageUrl}
+          alt={event.title}
+          className="w-full h-64 object-cover rounded-lg"
+          onError={(e) => {
+            e.target.src = defaultImageUrl;
+            e.target.onerror = null;
+          }}
+        />
+      );
+
+    case 'video':
+      // For videos, always try to show video player
+      const videoEmbedUrl = getEmbedUrl(event.mediaUrl);
+      return videoEmbedUrl ? (
+        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+          <iframe
+            src={videoEmbedUrl}
+            className="absolute top-0 left-0 w-full h-full rounded-lg"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            title={event.title}
           />
-        );
-    }
-  };
+        </div>
+      ) : (
+        <div className="w-full h-64 bg-gray-200 flex items-center justify-center rounded-lg">
+          <span className="text-gray-500">
+            {event.mediaUrl ? 'Invalid video URL' : 'No video provided'}
+          </span>
+        </div>
+      );
+
+    default:
+      // Fallback for any unexpected types
+      return (
+        <img
+          src={defaultImageUrl}
+          alt={event.title}
+          className="w-full h-64 object-cover rounded-lg"
+          onError={(e) => {
+            e.target.src = defaultImageUrl;
+            e.target.onerror = null;
+          }}
+        />
+      );
+  }
+};
 
   if (loading) return <div className="text-center py-20">Loading events...</div>;
   if (error) return <div className="text-center py-20 text-red-500">{error}</div>;
