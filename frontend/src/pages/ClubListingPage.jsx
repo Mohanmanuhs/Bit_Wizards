@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -13,6 +15,7 @@ const ClubListingPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const api = axios.create({
     baseURL: apiUrl,
@@ -99,6 +102,10 @@ const ClubListingPage = () => {
     }
   };
 
+  const handleAddClub = () => {
+    navigate('/register-club');
+  };
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="text-center space-y-4">
@@ -142,6 +149,21 @@ const ClubListingPage = () => {
           <p className="mt-3 text-xl text-gray-600 max-w-2xl mx-auto">
             Discover and join officially approved student organizations
           </p>
+          
+          {/* Add Club Button */}
+          {user && (
+            <div className="mt-6">
+              <button
+                onClick={handleAddClub}
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md flex items-center mx-auto"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Register New Club
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Search and Filter Section */}
