@@ -4,7 +4,7 @@ const Club = require("../models/Club");
 // @route   POST /api/events
 exports.createEvent = async (req, res) => {
   try {
-    console.log(req);
+    
     const userId = req.user._id;
     console.log(userId);
     // Find the club where userId matches

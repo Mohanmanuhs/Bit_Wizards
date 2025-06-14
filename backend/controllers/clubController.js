@@ -124,6 +124,10 @@ exports.updateClub = async (req, res) => {
       runValidators: true,
     });
     if (!club) return res.status(404).json({ message: "Club not found" });
+    await User.findByIdAndUpdate(club.userId, {
+      role: 'club_admin',
+    });
+
     res.status(200).json(club);
   } catch (err) {
     res.status(500).json({ message: err.message });

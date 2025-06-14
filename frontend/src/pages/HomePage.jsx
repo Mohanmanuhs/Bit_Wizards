@@ -35,7 +35,7 @@ export const HomePage = () => {
             ) : (
               <div className="flex space-x-4">
                 <Link
-                  to="/signup"
+                  to="/login"
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Get Started
@@ -139,7 +139,7 @@ export const HomePage = () => {
             ) : (
               <div className="flex space-x-4">
                 <Link
-                  to="/signup"
+                  to="/login"
                   className="inline-flex items-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50"
                 >
                   Sign up for free
@@ -170,7 +170,7 @@ export const HomePage = () => {
               <div className="mt-8 sm:flex">
                 <div className="rounded-md shadow">
                   <Link
-                    to={user ? "/register-club" : "/signup"}
+                    to={user ? "/register-club" : "/login"}
                     className="flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
                   >
                     Register Your Club
